@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тапай и Зарабатывай</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+        }
+        #balance {
+            font-size: 24px;
+            margin: 20px;
+        }
+        #task {
+            font-size: 18px;
+            margin: 10px;
+            color: #555;
+        }
+        #tapButton, #upgradeButton {
+            font-size: 20px;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        #tapButton:hover, #upgradeButton:hover {
+            background-color: #45a049;
+        }
+        #successMessage {
+            font-size: 22px;
+            color: #4caf50;
+            display: none;
+            margin-top: 20px;
+        }
+        #upgradeInfo {
+            font-size: 18px;
+            margin: 10px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тапай и Зарабатывай $BEB</h1>
+    <div id="task">Задание: Достичь баланса 100!</div>
+    <div id="balance">Баланс: 0</div>
+    <button id="tapButton">Тапнуть!</button>
+    <button id="upgradeButton">Купить улучшение (Стоимость: 100)</button>
+    <div id="upgradeInfo">Текущий бонус за тап: x1</div>
+    <div id="successMessage">Поздравляем! Вы выполнили задание!</div>
+
+    <script>
+        // Цель для задания
+        const goal = 100000000000000000000000000000000000000000000;
+
+        // Начальные значения
+        let balance = 0;
+        let tapBonus = 1; // Сколько добавляется за один тап
+        let upgradeCost = 100; // Стоимость первого улучшения
+
+        // Получение элементов
+        const balanceElement = document.getElementById('balance');
+        const tapButton = document.getElementById('tapButton');
+        const upgradeButton = document.getElementById('upgradeButton');
+        const upgradeInfo = document.getElementById('upgradeInfo');
+        const successMessage = document.getElementById('successMessage');
+
+        // Функция для загрузки данных игрока
+        function loadPlayerData() {
+            const savedBalance = localStorage.getItem('playerBalance');
+            const savedTapBonus = localStorage.getItem('tapBonus');
+            const savedUpgradeCost = localStorage.getItem('upgradeCost');
+
+            balance = savedBalance ? parseInt(savedBalance, 10) : 0;
+            tapBonus = savedTapBonus ? parseInt(savedTapBonus, 10) : 1;
+            upgradeCost = savedUpgradeCost ? parseInt(savedUpgradeCost, 10) : 10;
+        }
+
+        // Функция для сохранения данных игрока
+        function savePlayerData() {
+            localStorage.setItem('playerBalance', balance);
+            localStorage.setItem('tapBonus', tapBonus);
+            localStorage.setItem('upgradeCost', upgradeCost);
+        }
+
+        // Загружаем данные при старте
+        loadPlayerData();
+        balanceElement.textContent = `Баланс: ${balance}`;
+        upgradeButton.textContent = `Купить улучшение (Стоимость: ${upgradeCost})`;
+        upgradeInfo.textContent = `Текущий бонус за тап: x${tapBonus}`;
+
+        // Проверяем выполнение задания
+        if (balance >= goal) {
+            successMessage.style.display = 'block';
+            tapButton.disabled = true;
+            tapButton.style.backgroundColor = '#ccc';
+            tapButton.style.cursor = 'not-allowed';
+        }
+
+        // Обработчик кнопки "Тапнуть!"
+        tapButton.addEventListener('click', () => {
+            if (balance < goal) {
+                balance += tapBonus; // Увеличиваем баланс с учетом бонуса
+                balanceElement.textContent = `Баланс: ${balance}`;
+                savePlayerData();
+
+                if (balance >= goal) {
+                    successMessage.style.display = 'block'; // Показываем сообщение об успехе
+                    tapButton.disabled = true; // Отключаем кнопку
+                    tapButton.style.backgroundColor = '#ccc';
+                    tapButton.style.cursor = 'not-allowed';
+                }
+            }
+        });
+
+        // Обработчик кнопки "Купить улучшение"
+        upgradeButton.addEventListener('click', () => {
+            if (balance >= upgradeCost) {
+                balance -= upgradeCost; // Уменьшаем баланс на стоимость улучшения
+                tapBonus += 1; // Увеличиваем бонус за тап
+                upgradeCost = Math.ceil(upgradeCost * 1.5); // Увеличиваем стоимость улучшения
+
+                // Обновляем интерфейс
+                balanceElement.textContent = `Баланс: ${balance}`;
+                upgradeButton.textContent = `Купить улучшение (Стоимость: ${upgradeCost})`;
+                upgradeInfo.textContent = `Текущий бонус за тап: x${tapBonus}`;
+                savePlayerData();
+            } else {
+                alert("Недостаточно средств для покупки улучшения!");
+            }
+        });
+    </script>
+</body>
+</html>
